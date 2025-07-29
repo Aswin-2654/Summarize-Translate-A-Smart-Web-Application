@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Results | Summarize & Translate: A Smart Web Application</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="text-center mb-4">
+            <h1 class="display-5"><i class="bi bi-file-earmark-text me-2"></i>Summarize & Translate: A Smart Web Application</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Summary Results</li>
+                </ol>
+            </nav>
+        </header>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h5 m-0">Article Summary</h2>
+                        <div class="actions">
+                            <form action="/download-pdf" method="post" class="d-inline">
+                                <input type="hidden" name="summary" value="{{ result.summary }}">
+                                <input type="hidden" name="translated_summary" value="{{ result.translated_summary }}">
+                                <input type="hidden" name="source_type" value="{{ result.source_type }}">
+                                <input type="hidden" name="source_name" value="{{ result.source_name }}">
+                                <input type="hidden" name="original_url" value="{{ result.original_url }}">
+                                <input type="hidden" name="target_language" value="{{ result.target_language }}">
+                                <input type="hidden" name="reading_time" value="{{ result.reading_time }}">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-download me-1"></i> Download PDF
+                                </button>
+                            </form>
+                            <a href="/" class="btn btn-sm btn-secondary ms-2">
+                                <i class="bi bi-arrow-left me-1"></i> New Summary
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="source-info mb-3">
+                            {% if result.source_type == 'url' %}
+                            <p><strong>Source URL:</strong> <a href="{{ result.original_url }}" target="_blank" class="text-truncate">{{ result.original_url }}</a></p>
+                            {% elif result.source_type == 'pdf' %}
+                            <p><strong>Source:</strong> PDF Document - {{ result.source_name }}</p>
+                            {% else %}
+                            <p><strong>Source:</strong> {{ result.source_name }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        {% if result.images and result.images|length > 0 %}
+                        <div class="extracted-images mb-4">
+                            <h4 class="h6 mb-3">Extracted Images</h4>
+                            <div class="row">
+                                {% for image_url in result.images %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <img src="{{ image_url }}" class="img-fluid" alt="Extracted image" 
+                                             onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Image+Unavailable'; this.classList.add('unavailable');">
+                                        <div class="card-footer text-center">
+                                            <a href="{{ image_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-arrows-fullscreen"></i> Full Size
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="summary-section mb-4">
+                            <h3 class="h5 border-bottom pb-2">
+                                Summary (English)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="english" data-lang="en-US">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                            </h3>
+                            <div class="reading-time small mb-2">
+                                <i class="bi bi-clock me-1"></i> Estimated reading time: {{ result.reading_time }}
+                            </div>
+                            <div class="summary-content bg-dark rounded p-3">
+                                {{ result.summary }}
+                            </div>
+                        </div>
+
+                        {% if result.target_language != 'en' %}
+                        <div class="summary-section mb-4">
+                            <h3 class="h5 border-bottom pb-2">
+                                {% if result.target_language == 'es' %}
+                                Summary (Spanish)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="es-ES">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'fr' %}
+                                Summary (French)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="fr-FR">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'de' %}
+                                Summary (German)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="de-DE">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'it' %}
+                                Summary (Italian)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="it-IT">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'pt' %}
+                                Summary (Portuguese)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="pt-PT">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'ru' %}
+                                Summary (Russian)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="ru-RU">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'zh-CN' %}
+                                Summary (Chinese)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="zh-CN">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'ja' %}
+                                Summary (Japanese)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="ja-JP">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% elif result.target_language == 'ar' %}
+                                Summary (Arabic)
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 speak-btn" data-text="translated" data-lang="ar-SA">
+                                    <i class="bi bi-volume-up"></i> <span class="button-text">Speak</span>
+                                </button>
+                                {% else %}
+                                Summary ({{ result.target_language }})
+                                {% endif %}
+                            </h3>
+                            <div class="reading-time small mb-2">
+                                <i class="bi bi-clock me-1"></i> Estimated reading time: {{ result.translated_reading_time }}
+                            </div>
+                            <div class="summary-content bg-dark rounded p-3">
+                                {{ result.translated_summary }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h3 class="h5 m-0">{% if result.source_type == 'pdf' %}PDF Content Preview{% else %}Original Article Preview{% endif %}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="article-preview bg-dark rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            {{ result.article_content }}
+                        </div>
+                        {% if result.source_type == 'url' and result.original_url %}
+                        <div class="text-center mt-3">
+                            <a href="{{ result.original_url }}" target="_blank" class="btn btn-outline-primary">
+                                <i class="bi bi-box-arrow-up-right me-1"></i> Visit Original Article
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-5 text-muted">
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Text-to-Speech functionality
+            const speakButtons = document.querySelectorAll('.speak-btn');
+            let currentUtterance = null;
+            let synth = window.speechSynthesis;
+            
+            // Check if speech synthesis is supported
+            if (!synth) {
+                speakButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.title = 'Text-to-speech not supported in your browser';
+                    btn.querySelector('.button-text').textContent = 'Not Available';
+                });
+            } else {
+                speakButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const textType = this.getAttribute('data-text');
+                        const lang = this.getAttribute('data-lang');
+                        let textToSpeak = '';
+                        
+                        // Get the appropriate text based on which button was clicked
+                        if (textType === 'english') {
+                            textToSpeak = document.querySelector('.summary-section:first-of-type .summary-content').textContent.trim();
+                        } else if (textType === 'translated') {
+                            textToSpeak = this.closest('.summary-section').querySelector('.summary-content').textContent.trim();
+                        }
+                        
+                        // If already speaking, toggle pause/resume
+                        if (synth.speaking) {
+                            if (synth.paused) {
+                                // Resume speaking
+                                synth.resume();
+                                this.querySelector('.bi').classList.remove('bi-play');
+                                this.querySelector('.bi').classList.add('bi-pause');
+                                this.querySelector('.button-text').textContent = 'Pause';
+                            } else {
+                                // Pause speaking
+                                synth.pause();
+                                this.querySelector('.bi').classList.remove('bi-pause');
+                                this.querySelector('.bi').classList.add('bi-play');
+                                this.querySelector('.button-text').textContent = 'Resume';
+                            }
+                            return;
+                        }
+                        
+                        // If there's text to speak and we're not already speaking
+                        if (textToSpeak && !synth.speaking) {
+                            // Create utterance
+                            currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
+                            currentUtterance.lang = lang;
+                            
+                            // Update button appearance
+                            this.querySelector('.bi').classList.remove('bi-volume-up');
+                            this.querySelector('.bi').classList.add('bi-pause');
+                            this.querySelector('.button-text').textContent = 'Pause';
+                            
+                            // Event handlers for utterance
+                            currentUtterance.onend = function() {
+                                // Reset buttons when speech ends
+                                speakButtons.forEach(b => {
+                                    b.querySelector('.bi').classList.remove('bi-pause', 'bi-play');
+                                    b.querySelector('.bi').classList.add('bi-volume-up');
+                                    b.querySelector('.button-text').textContent = 'Speak';
+                                });
+                            };
+                            
+                            // Start speaking
+                            synth.speak(currentUtterance);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
